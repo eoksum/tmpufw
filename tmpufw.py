@@ -142,7 +142,6 @@ class tmpufw(object):
                                 handle = open(rules_file, "r")
                                 ruleLines = handle.readlines()
                                 handle.close()
-
                                 updatedExistingRule = 0
                                 nruleLines = ruleLines.copy()
                                 for id, rule in enumerate(ruleLines):
@@ -154,13 +153,15 @@ class tmpufw(object):
                                                 erule = " ".join(erule)
                                                 nruleLines[id] = erule
 
-                                handle = open(rules_file, 'a')
                                 if updatedExistingRule == 0:
+                                        handle = open(rules_file, 'a')
                                         handle.write(str(timestamp) + ' ' + args.rule)
                                         handle.write("\n")
+                                        handle.close()
                                 else:
+                                        handle = open(rules_file, 'w')
                                         handle.writelines(nruleLines)
-                                handle.close()
+                                        handle.close()
                         except IOError:
                                 self.error('unable to write to the rules file: ' + rules_file)
 
