@@ -27,7 +27,7 @@ Small fixes and improvements to it by Emrecan ÖKSÜM
 
 from argparse import ArgumentParser
 from datetime import datetime
-from os import getpid, makedirs, path, remove, popen
+import os
 from parsedatetime import Calendar
 from shutil import move
 from subprocess import CalledProcessError, check_output, STDOUT
