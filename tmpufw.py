@@ -146,7 +146,7 @@ class tmpufw(object):
                                 updatedExistingRule = 0
                                 nruleLines = ruleLines.copy()
                                 for id, rule in enumerate(ruleLines):
-                                        if rule.find(args.rule):
+                                        if rule.find(args.rule) != -1:
                                                 updatedExistingRule = 1
                                                 print("Rule found! updating existing rule...")
                                                 erule = rule.split(" ")
