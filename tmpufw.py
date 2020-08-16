@@ -14,15 +14,20 @@ Arguments:
 	-p POSITION, --position POSITION position to add the rule
 	-t TTL, --ttl TTL                time to live for the rule
 """
-__author__  = 'Joshua Sherman'
+__author__  = 'Joshua Sherman and Emrecan ÖKSÜM'
 __file__    = 'tmpufw'
 __license__ = 'MIT'
 __status__  = 'Production'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
+
+"""
+TMPUFW by Joshua Sherman
+Small fixes and improvements to it by Emrecan ÖKSÜM
+"""
 
 from argparse import ArgumentParser
 from datetime import datetime
-from os import getpid, makedirs, path, remove
+from os import getpid, makedirs, path, remove, popen
 from parsedatetime import Calendar
 from shutil import move
 from subprocess import CalledProcessError, check_output, STDOUT
@@ -64,6 +69,18 @@ class tmpufw(object):
 		elif args.clean:
 			# Checks for PID file
 			if path.exists(pid_file):
+				pfo = open(pid_file, "r")
+				opid = pfo.read()
+				pfo.close()
+				
+				opid = opid.strip()
+				pcmd = os.popen("ps aux | grep " + opid + " | grep " + __file__ + " grep -v grep")
+				cmdr = pcmd.read()
+				
+				if cmdr.find(__file__) == -1:
+					print(__file__ + " pidfile is found but process doesn't seem to be running! Unlinking the PID...")
+					os.unlink(pid_file)
+					self.error(__file__ + " will run in the next crond invokation.")
 				self.error(__file__ + ' is already running')
 			else:
 				# Creates the PID file
@@ -122,10 +139,27 @@ class tmpufw(object):
 
 			# Writes the rule to the rules file
 			try:
-				# TODO Check if rule already exists and update it instead of adding it again
+				handle = open(rules_file, "r")
+				ruleLines = handle.readlines()
+				handle.close()
+				
+				updatedExistingRule = 0
+				nruleLines = ruleLines.copy()
+				for id, rule in enumerate(ruleLines):
+					if rule.find(args.rule):
+						updatedExistingRule = 1
+						print("Rule found! updating existing rule...")
+						erule = rule.split(" ")
+						erule[0] = str(timestamp)
+						erule = " ".join(erule)
+						nruleLines[id] = erule
+						
 				handle = open(rules_file, 'a')
-				handle.write(str(timestamp) + ' ' + args.rule)
-				handle.write("\n")
+				if updatedExistingRule == 0:
+					handle.write(str(timestamp) + ' ' + args.rule)
+					handle.write("\n")
+				else:
+					handle.writelines(nruleLines)
 				handle.close()
 			except IOError:
 				self.error('unable to write to the rules file: ' + rules_file)
