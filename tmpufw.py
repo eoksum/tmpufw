@@ -75,7 +75,7 @@ class tmpufw(object):
                                 pfo.close()
 
                                 opid = opid.strip()
-                                pcmd = os.popen("ps aux | grep " + opid + " | grep " + __file__ + " grep -v grep")
+                                pcmd = os.popen("ps aux | grep " + opid + " | grep " + __file__ + " | grep -v grep")
                                 cmdr = pcmd.read()
 
                                 if cmdr.find(__file__) == -1:
